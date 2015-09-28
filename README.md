@@ -1,39 +1,22 @@
-# hapi-versioning
+# hapi-domainculture
 -----------------
 
-##Version handling for Hapi.js
+##Domain Culture for Hapi.js
 
 ###WHY?
-We want to keep our API clean being able to call /users or /users/2/follow/1 without adding version number
-/api/v1/users and api/v2/users
+We need to be able to support multi domain and languages
 
-with this Hapi.plugin you can just pass the pattern and header 
+###How?
 ```javascript
 {
-    register: require('hapi-versioning'),
+    register: require('hapi-domainculture'),
     options: {
-        pattern: /^(v[1-9])$/,
-        header: 'ourversion'
+      default_domain_culture: 'en-US', // String
+      white_list: ['en-US','es-MX','es-US'], // Array
+      language_header: '' //String(Optinal) default will use accept-language
     }
 },
 
 ```
-That will check the header (only if its not set in the url) on evevry request and will redirect to thr right path.
-
-for ex'
-```javascript 
-{
-    register: require('hapi-versioning'),
-    options: {} //set to default header.version = v1
-},
-
-
-header: { version: v1 }
-url: /hello/world
-//Will redirect to: url: /v1/hello/world
-
-```
-
-** url will override the header all the time
 
 Checkout the test for more examples
