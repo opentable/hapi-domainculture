@@ -7,11 +7,19 @@ exports.register = function(plugin, options, next){
      ){
     return next(new Error('Missing options'));
   }
-  var DEFAULT_QUERY_PARAM_DOMAIN = options.query_params.domain.toString().toLowerCase() || 'domain';
-  var DEFAULT_QUERY_PARAM_CULTURE = options.query_params.culture.toString().toLowerCase() || 'culture';
+  var DEFAULT_QUERY_PARAM_DOMAIN = (options.query_params && options.query_params.domain) ?
+    options.query_params.domain.toString().toLowerCase() :
+    'domain';
+  var DEFAULT_QUERY_PARAM_CULTURE = (options.query_params && options.query_params.culture) ?
+    options.query_params.culture.toString().toLowerCase() :
+    'culture';
 
-  var DEFAULT_HEADER_DOMAIN = options.headers.domain.toString().toLowerCase() ||  'domain';
-  var DEFAULT_HEADER_CULTURE = options.headers.culture.toString().toLowerCase() || 'accept-langauge';
+  var DEFAULT_HEADER_DOMAIN = (options.headers && options.headers.domain)
+    ? options.headers.domain.toString().toLowerCase() :
+      'domain';
+  var DEFAULT_HEADER_CULTURE = (options.headers && options.headers.culture) ?
+    options.headers.culture.toString().toLowerCase() :
+    'accept-language';
 
   var fetchDomainCulture = function(args){
     if (options.white_list[args.domain]) {
@@ -25,7 +33,6 @@ exports.register = function(plugin, options, next){
   };
 
   plugin.ext('onRequest', function(request, reply) {
-
     var domainCulture;
     if (request.query[DEFAULT_QUERY_PARAM_DOMAIN] &&
         request.query[DEFAULT_QUERY_PARAM_CULTURE])

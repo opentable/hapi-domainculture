@@ -70,7 +70,7 @@ describe('Plugin Domain Culture', function() {
    * options are defined (without default header name)
    *
    */
-  describe('When options are defined with headerand without query params', function(){
+  describe('When options are defined with header and without query params, { domain: com, accept-language: en-US }', function(){
     var pluginOptions = {
       white_list: {
         'com': {
@@ -94,9 +94,7 @@ describe('Plugin Domain Culture', function() {
       response: {
         statusCode: 200
       },
-      headers: {
-        'accept-language': 'en-US'
-      },
+      query: {},
       route: {
         settings: {
           plugins: {
@@ -107,7 +105,7 @@ describe('Plugin Domain Culture', function() {
         }
       },
       raw: {
-        req: { headers: { 'accept-language': 'en-US' } }
+        req: { headers: { 'accept-language': 'en-US', 'domain': 'com' } }
       }
     };
 
@@ -125,9 +123,10 @@ describe('Plugin Domain Culture', function() {
 
     it('should set request.pre.domainCulture', function(){
       expect(req).to.be.object;
-      expect(req.pre).to.not.be.null;
-      expect(req.pre.domainCulture).to.be.eql('en-US');
-      console.log(req.pre);
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'com');
+      expect(req.app.domainCulture).to.have.property('culture', 'en-US');
     });
   });
 });
