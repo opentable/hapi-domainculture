@@ -67,7 +67,7 @@ describe('Plugin Domain Culture', function() {
 
   /*
    *
-   * options are defined (without default header name)
+   * options are defined (without default header name or query params)
    *
    */
   describe('When options are defined with header and without query params, { domain: com, accept-language: en-US }', function(){
@@ -122,6 +122,233 @@ describe('Plugin Domain Culture', function() {
     });
 
     it('should set request.pre.domainCulture', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'com');
+      expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+  });
+
+  /*
+   *
+   * options are query_params, headers,
+   * Should use query_params over headers
+   *
+   */
+  describe('When all options are defined headers and query params', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      query_params: {
+        culture: 'culturequery',
+        domain: 'domainquery'
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {
+        culturequery: 'en-US',
+        domainquery: 'commx'
+      },
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: { headers: { 'accept-language': 'en-US', 'domain': 'com' } }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture according to query params', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'commx');
+      expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+    it('Shoud NOT use the header', function() {
+      expect(req.app.domainCulture).to.not.have.property('domain', 'com');
+    });
+  });
+
+  /*
+   *
+   * options are query_params, headers,
+   * Should use query_params over headers
+   * BUT! query_params.ignore is eql true
+   */
+  describe('When all options are defined headers and query params, BUT query_params.ignore is true', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      query_params: {
+        culture: 'culturequery',
+        domain: 'domainquery',
+        ignore: true
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {
+        culturequery: 'en-US',
+        domainquery: 'commx'
+      },
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: { headers: { 'accept-language': 'fr-CA', 'domain': 'com' } }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture according to query params', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'com');
+      expect(req.app.domainCulture).to.have.property('culture', 'fr-CA');
+    });
+    it('Shoud NOT use the query params', function() {
+      expect(req.app.domainCulture).to.not.have.property('domain', 'commx');
+    });
+  });
+
+  /*
+   *
+   * query_params will be defined but we wont pass them req.query = {}
+   * NO headers
+   * Should use default domain and default culture
+   *
+   */
+  describe('When NO query params and headers are being passed should use default', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      query_params: {
+        culture: 'culturequery',
+        domain: 'domainquery',
+        ignore: true
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {},
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: {
+          headers: {}
+        }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture to default', function(){
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');

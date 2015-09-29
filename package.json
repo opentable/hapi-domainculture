@@ -1,6 +1,6 @@
 {
   "name": "hapi-domainculture",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Hapijs, domain culture plugin - this plugin will support the different markets and the language",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,17 @@
     "plugin",
     "versioning"
   ],
-  "author": "Doron Segal",
+  "contributors": [
+    {
+      "name": "Doron Segal",
+      "email": "dsegal@opentable.com",
+      "url": "http://segaldoron.com/"
+    },{
+      "name": "Aaron Borden",
+      "email": "adborden@a14n.net",
+      "url": "https://www.a14n.net/"
+    }
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/doron2402/hapi-versioning/issues"

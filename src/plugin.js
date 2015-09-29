@@ -13,7 +13,7 @@ exports.register = function(plugin, options, next){
   var DEFAULT_QUERY_PARAM_CULTURE = (options.query_params && options.query_params.culture) ?
     options.query_params.culture.toString().toLowerCase() :
     'culture';
-
+  var IGNORE_QUERY_PARAMS = !!(options.query_params && options.query_params.ignore);
   var DEFAULT_HEADER_DOMAIN = (options.headers && options.headers.domain)
     ? options.headers.domain.toString().toLowerCase() :
       'domain';
@@ -35,7 +35,8 @@ exports.register = function(plugin, options, next){
   plugin.ext('onRequest', function(request, reply) {
     var domainCulture;
     if (request.query[DEFAULT_QUERY_PARAM_DOMAIN] &&
-        request.query[DEFAULT_QUERY_PARAM_CULTURE])
+        request.query[DEFAULT_QUERY_PARAM_CULTURE] &&
+        !IGNORE_QUERY_PARAMS)
     {
       domainCulture = fetchDomainCulture({
         domain : request.query[DEFAULT_QUERY_PARAM_DOMAIN],
@@ -48,7 +49,8 @@ exports.register = function(plugin, options, next){
         culture: request.raw.req.headers[DEFAULT_HEADER_CULTURE]
       });
     } else {
-      domainCulture = options.white_list[options.default];
+      var defaultDomain = options.white_list[options.default];
+      domainCulture = defaultDomain[defaultDomain.default];
     }
 
     request.app = request.app || {};
