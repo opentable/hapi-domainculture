@@ -37,7 +37,7 @@ describe('Plugin Domain Culture', function() {
     };
 
     var nextCalled = false;
-
+    var nextError = null;
     before(function(done){
       plugin.register({
         ext: function(_, handler) {
@@ -47,11 +47,20 @@ describe('Plugin Domain Culture', function() {
             }
           });
         }
-      }, pluginOptions, function(){});
+      }, pluginOptions, function(error){
+        nextCalled = true;
+        nextError = error;
+        done();
+      });
     });
 
     it('response should be undefined', function(){
       expect(nextCalled).to.be.true;
+    });
+    it('Should call next with an error', function() {
+      expect(nextError).to.be.an.object;
+      expect(nextError).to.match(/Missing options/);
+      expect(nextError).to.not.be.null;
     });
   });
 
@@ -61,21 +70,21 @@ describe('Plugin Domain Culture', function() {
    * options are defined (without default header name)
    *
    */
-  describe('When options are defined', function(){
+  describe('When options are defined with headerand without query params', function(){
     var pluginOptions = {
       white_list: {
-        'en-US': {
-          langauge: 'en',
-          domain: 'com',
-          country: 'US'
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
         },
-        'en-MX': {
-          language: 'en',
-          domain: 'commx',
-          country: 'mexico'
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
         }
       },
-      default_domain_culture: 'en-US'
+      default: 'com'
     };
     var req = {
       info: {
@@ -117,7 +126,7 @@ describe('Plugin Domain Culture', function() {
     it('should set request.pre.domainCulture', function(){
       expect(req).to.be.object;
       expect(req.pre).to.not.be.null;
-      expect(req.pre.domainCulture).to.be.equal('en-US');
+      expect(req.pre.domainCulture).to.be.eql('en-US');
       console.log(req.pre);
     });
   });
