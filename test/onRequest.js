@@ -61,9 +61,20 @@ describe('Plugin Domain Culture', function() {
    * options are defined (without default header name)
    *
    */
-  describe('When options are undefined', function(){
+  describe('When options are defined', function(){
     var pluginOptions = {
-      white_list: ['en-US','es-MX'],
+      white_list: {
+        'en-US': {
+          langauge: 'en',
+          domain: 'com',
+          country: 'US'
+        },
+        'en-MX': {
+          language: 'en',
+          domain: 'commx',
+          country: 'mexico'
+        }
+      },
       default_domain_culture: 'en-US'
     };
     var req = {
@@ -93,7 +104,7 @@ describe('Plugin Domain Culture', function() {
 
     before(function(done){
       plugin.register({
-        ext: function(req, handler) {
+        ext: function(_, handler) {
           handler(req, {
             continue: function() {
               done();
@@ -106,6 +117,7 @@ describe('Plugin Domain Culture', function() {
     it('should set request.pre.domainCulture', function(){
       expect(req).to.be.object;
       expect(req.pre).to.not.be.null;
+      expect(req.pre.domainCulture).to.be.equal('en-US');
       console.log(req.pre);
     });
   });

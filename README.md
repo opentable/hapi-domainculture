@@ -18,5 +18,21 @@ We need to be able to support multi domain and languages
 },
 
 ```
+options.white_list = {
+  'com': {
+    'en-US': { domain: 'com', culture: 'en-US' } // User can specify any object for this.
+    'fr-CA': { domain: 'com', culture: 'fr-CA' } // User can specify any object for this.
+
+  },
+  'commx': {
+    'en-US': { domain: 'commx', culture: 'en-US' } // User can specify any object for this.
+    'es-MX': { domain: 'commx', culture: 'es-MX' } // User can specify any object for this.
+    default: 'es-MX';
+  }
+}
+options.default = { domain: 'com' };
+options.query_params =  { domain: 'domain', culture: 'culture' };
+options.headers = { domain: 'domain', culture: 'culture' };
+
 
 Checkout the test for more examples
