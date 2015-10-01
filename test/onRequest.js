@@ -356,5 +356,76 @@ describe('Plugin Domain Culture', function() {
       expect(req.app.domainCulture).to.have.property('culture', 'en-US');
     });
   });
+
+  /*
+   *
+   * req.query.domain is uppercase
+   * Should use domain and culture passed in query
+   *
+   */
+  describe('When query params domain is uppercase COMMX', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {
+        domain: 'COMMX',
+        culture: 'en-US'
+      },
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: {
+          headers: {}
+        }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture commx', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'commx');
+      expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+  });
 });
 
