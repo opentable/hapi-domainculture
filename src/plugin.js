@@ -31,7 +31,8 @@ exports.register = function(plugin, options, next){
       return options.white_list[domain][options.white_list[domain].default];
     }
 
-    return options.white_list[options.default];
+    var defaultDomain = options.white_list[options.default];
+    return defaultDomain[defaultDomain.default];
   };
 
   plugin.ext('onRequest', function(request, reply) {

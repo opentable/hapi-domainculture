@@ -359,6 +359,148 @@ describe('Plugin Domain Culture', function() {
 
   /*
    *
+   * req.query.culture is invalid
+   * Should use default domain culture
+   *
+   */
+  describe('When query params culture is invalid', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {
+        domain: 'commx',
+        culture: 'klingon-MX'
+      },
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: {
+          headers: {}
+        }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture commx/es-MX', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'commx');
+      expect(req.app.domainCulture).to.have.property('culture', 'es-MX');
+    });
+  });
+
+  /*
+   *
+   * req.query.domain is invalid
+   * Should use default domain
+   *
+   */
+  describe('When query params domain is invalid', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {
+        domain: 'foobar',
+        culture: 'en-US'
+      },
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: {
+          headers: {}
+        }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture com', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'com');
+      expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+  });
+
+  /*
+   *
    * req.query.domain is uppercase
    * Should use domain and culture passed in query
    *
