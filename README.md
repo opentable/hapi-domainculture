@@ -1,3 +1,6 @@
+[![Build
+Status](https://travis-ci.org/opentable/hapi-domainculture.svg)](https://travis-ci.org/opentable/hapi-domainculture)
+
 # hapi-domainculture
 -----------------
 
