@@ -22,14 +22,17 @@ exports.register = function(plugin, options, next){
     'accept-language';
 
   var fetchDomainCulture = function(args){
-    if (options.white_list[args.domain]) {
-      if (options.white_list[args.domain][args.culture]) {
-        return options.white_list[args.domain][args.culture];
+    var culture = args.culture.toString()
+    var domain = args.domain.toString().toLowerCase()
+    if (options.white_list[domain]) {
+      if (options.white_list[domain][culture]) {
+        return options.white_list[domain][culture];
       }
-      return options.white_list[args.domain][options.white_list[args.domain].default];
+      return options.white_list[domain][options.white_list[domain].default];
     }
 
-    return options.white_list[options.default];
+    var defaultDomain = options.white_list[options.default];
+    return defaultDomain[defaultDomain.default];
   };
 
   plugin.ext('onRequest', function(request, reply) {
