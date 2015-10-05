@@ -1,6 +1,6 @@
 {
   "name": "hapi-domainculture",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Hapijs, domain culture plugin - this plugin will support the different markets and the language",
   "main": "index.js",
   "scripts": {

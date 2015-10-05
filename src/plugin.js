@@ -51,6 +51,14 @@ exports.register = function(plugin, options, next){
         domain: request.raw.req.headers[DEFAULT_HEADER_DOMAIN],
         culture: request.raw.req.headers[DEFAULT_HEADER_CULTURE]
       });
+    } else if (request.query[DEFAULT_QUERY_PARAM_DOMAIN] &&
+               !IGNORE_QUERY_PARAMS &&
+              options.white_list[request.query[DEFAULT_QUERY_PARAM_DOMAIN]])
+    {
+      domainCulture = fetchDomainCulture({
+        domain: request.query[DEFAULT_QUERY_PARAM_DOMAIN],
+        culture: ''
+      });
     } else {
       var defaultDomain = options.white_list[options.default];
       domainCulture = defaultDomain[defaultDomain.default];

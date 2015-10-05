@@ -132,6 +132,81 @@ describe('Plugin Domain Culture', function() {
 
   /*
    *
+   * When only domain is passed in query_params,
+   * Should use domain from query_params and with the default culture
+   *
+   */
+  describe('When only domain is being passed in the query params', function(){
+    var pluginOptions = {
+      white_list: {
+        'com': {
+          'en-US': { domain: 'com', culture: 'en-US' }, // User can specify any object for this.
+          'fr-CA': { domain: 'com', culture: 'fr-CA' }, // User can specify any object for this.
+          'default': 'en-US'
+        },
+        'commx': {
+          'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
+          'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
+          default: 'es-MX'
+        }
+      },
+      query_params: {
+        domain: 'domainquery'
+      },
+      default: 'com'
+    };
+    var req = {
+      info: {
+        received: new Date()
+      },
+      method: 'get',
+      response: {
+        statusCode: 200
+      },
+      query: {
+        domainquery: 'commx'
+      },
+      route: {
+        settings: {
+          plugins: {
+            'hapi-domainculture': {
+              version: pkg.version
+            }
+          }
+        }
+      },
+      raw: {
+        req: { headers: {  } }
+      }
+    };
+
+    before(function(done){
+      plugin.register({
+        ext: function(_, handler) {
+          handler(req, {
+            continue: function() {
+              done();
+            }
+          });
+        }
+      }, pluginOptions, function(){});
+    });
+
+    it('should set request.pre.domainCulture according to query params', function(){
+      expect(req).to.be.object;
+      expect(req.app).to.not.be.null;
+      expect(req.app.domainCulture).to.be.an('object');
+      expect(req.app.domainCulture).to.have.property('domain', 'commx');
+      expect(req.app.domainCulture).to.have.property('culture', 'es-MX');
+    });
+    it('Shoud NOT use the header', function() {
+      expect(req.app.domainCulture).to.not.have.property('domain', 'com');
+    });
+  });
+
+
+  /*
+   *
    * options are query_params, headers,
    * Should use query_params over headers
    *
