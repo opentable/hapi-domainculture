@@ -1,71 +1,61 @@
 'use strict';
-exports.register = function(plugin, options, next){
-  if (!options ||
-      !options.white_list ||
-      !options.default ||
-      !options.white_list[options.default]
-     ){
-    return next(new Error('Missing options'));
-  }
-  var DEFAULT_QUERY_PARAM_DOMAIN = (options.query_params && options.query_params.domain) ?
-    options.query_params.domain.toString().toLowerCase() :
-    'domain';
-  var DEFAULT_QUERY_PARAM_CULTURE = (options.query_params && options.query_params.culture) ?
-    options.query_params.culture.toString().toLowerCase() :
-    'culture';
-  var IGNORE_QUERY_PARAMS = !!(options.query_params && options.query_params.ignore);
-  var DEFAULT_HEADER_DOMAIN = (options.headers && options.headers.domain)
-    ? options.headers.domain.toString().toLowerCase() :
-      'domain';
-  var DEFAULT_HEADER_CULTURE = (options.headers && options.headers.culture) ?
-    options.headers.culture.toString().toLowerCase() :
-    'accept-language';
 
-  var fetchDomainCulture = function(args){
-    var culture = args.culture.toString()
-    var domain = args.domain.toString().toLowerCase()
-    if (options.white_list[domain]) {
-      if (options.white_list[domain][culture]) {
-        return options.white_list[domain][culture];
+const _ = require('lodash');
+const acceptLanguage = require('accept-language');
+
+exports.register = function register(plugin, options, next) {
+  if (!options) { return next(new Error('options param missing')); }
+  if (!options.white_list) { return next(new Error('options.white_list param missing')); }
+  if (!options.default) { return next(new Error('options.default param missing')); }
+
+  const DEFAULT_DOMAIN_SETTINGS = options.white_list[options.default];
+
+  if (!DEFAULT_DOMAIN_SETTINGS) { return next(new Error('The default for the white list is invalid')); }
+
+  const DEFAULT_CULTURE = DEFAULT_DOMAIN_SETTINGS.default;
+  const QUERY_PARAM_DOMAIN = _.get(options, 'query_params.domain', 'domain');
+  const QUERY_PARAM_CULTURE = _.get(options, 'query_params.culture', 'culture');
+  const IGNORE_QUERY_PARAMS = _.get(options, 'query_params.ignore', false);
+  const HEADER_DOMAIN = _.get(options, 'headers.domain', 'domain').toLowerCase();
+  const HEADER_CULTURE = _.get(options, 'headers.culture', 'accept-language').toLowerCase();
+
+  function fetchDomainCulture(args) {
+    const culture = _.get(args, 'culture', '');
+    const domain = _.get(args, 'domain', '').toLowerCase();
+    const domainInWhiteList = _.get(options.white_list, domain, false);
+
+    if (domainInWhiteList) {
+      const culturesSupportedByDomain = _.get(options.white_list, [domain, 'cultures'], []);
+
+      if (!_.isEmpty(culturesSupportedByDomain)) {
+        acceptLanguage.languages(culturesSupportedByDomain);
+        const selectedCulture = acceptLanguage.get(culture);
+        const defaultCulture = _.get(domainInWhiteList, 'default');
+
+        return {domain, culture: selectedCulture || defaultCulture };
       }
-      return options.white_list[domain][options.white_list[domain].default];
     }
 
-    var defaultDomain = options.white_list[options.default];
-    return defaultDomain[defaultDomain.default];
-  };
+    return {domain: options.default, culture: DEFAULT_CULTURE};
+  }
 
-  plugin.ext('onRequest', function(request, reply) {
-    var domainCulture;
-    if (request.query[DEFAULT_QUERY_PARAM_DOMAIN] &&
-        request.query[DEFAULT_QUERY_PARAM_CULTURE] &&
-        !IGNORE_QUERY_PARAMS)
-    {
-      domainCulture = fetchDomainCulture({
-        domain : request.query[DEFAULT_QUERY_PARAM_DOMAIN],
-        culture: request.query[DEFAULT_QUERY_PARAM_CULTURE]
-      });
-    } else if (request.raw.req.headers[DEFAULT_HEADER_CULTURE] &&
-             request.raw.req.headers[DEFAULT_HEADER_DOMAIN]){
-      domainCulture = fetchDomainCulture({
-        domain: request.raw.req.headers[DEFAULT_HEADER_DOMAIN],
-        culture: request.raw.req.headers[DEFAULT_HEADER_CULTURE]
-      });
-    } else if (request.query[DEFAULT_QUERY_PARAM_DOMAIN] &&
-               !IGNORE_QUERY_PARAMS &&
-              options.white_list[request.query[DEFAULT_QUERY_PARAM_DOMAIN]])
-    {
-      domainCulture = fetchDomainCulture({
-        domain: request.query[DEFAULT_QUERY_PARAM_DOMAIN],
-        culture: ''
-      });
+  plugin.ext('onRequest', function onRequest(request, reply) {
+    let domainCulture;
+
+    const domainFromQuery = _.get(request, ['query', QUERY_PARAM_DOMAIN], false);
+    const cultureFromQuery = _.get(request, ['query', QUERY_PARAM_CULTURE], '');
+    const domainFromHeader = _.get(request, ['raw', 'req', 'headers', HEADER_DOMAIN], false);
+    const cultureFromHeader = _.get(request, ['raw', 'req', 'headers', HEADER_CULTURE], false);
+
+    if (domainFromQuery && !IGNORE_QUERY_PARAMS) {
+      domainCulture = fetchDomainCulture({domain: domainFromQuery, culture: cultureFromQuery });
+    } else if (domainFromHeader && cultureFromHeader) {
+      domainCulture = fetchDomainCulture({domain: domainFromHeader, culture: cultureFromHeader });
     } else {
-      var defaultDomain = options.white_list[options.default];
-      domainCulture = defaultDomain[defaultDomain.default];
+      domainCulture = {domain: options.default, culture: DEFAULT_CULTURE};
     }
 
-    request.app = request.app || {};
-    request.app.domainCulture = domainCulture;
+    _.set(request, 'app.domainCulture', domainCulture);
     reply.continue();
   });
 

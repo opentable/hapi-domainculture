@@ -1,7 +1,5 @@
-'use strict';
-
-var pkg = require('./package.json');
-var plugin = require('./src/plugin');
+const pkg = require('./package.json');
+const plugin = require('./src/plugin');
 
 exports.register = plugin.register;
 
