@@ -1,5 +1,6 @@
 const expect = require('expect.js');
 const plugin = require('../index.js');
+const pkg = require('../package.json');
 
 describe('plugin attributes', function() {
   it('should contain name', function() {
@@ -7,6 +8,6 @@ describe('plugin attributes', function() {
   });
 
   it('should contain version', function() {
-    expect(plugin.register.attributes.version).to.equal('0.0.6');
+    expect(plugin.register.attributes.version).to.equal(pkg.version);
   });
 });
