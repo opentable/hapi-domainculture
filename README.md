@@ -15,14 +15,12 @@ We need to be able to support multi domain and languages
   register: require('hapi-domainculture'),
   options: {
     white_list: {
-      'com': {
-        'en-US': { domain: 'com', culture: 'en-US' },
-         'fr-CA': { domain: 'com', culture: 'fr-CA' },
-         'default': 'en-US'
+      com: {
+        cultures: ['en-US', 'fr-CA'], // the first entry should be the default
+        default: 'en-US'
       },
-      'commx': {
-        'en-US': { domain: 'commx', culture: 'en-US' },
-        'es-MX': { domain: 'commx', culture: 'es-MX' },
+      commx: {
+        cultures: ['es-MX', 'en-US'], // the first entry should be the default
         default: 'es-MX'
        }
     }, // white_list is required
@@ -35,7 +33,7 @@ We need to be able to support multi domain and languages
       domain: 'domain', // optional, defaults to "domain"
       culture: 'culture' // optional, defaults to "Accept-Language"
     },
-    default: 'com' // Default domain to use
+    default: 'com' // Default domain to use. required.
   }
 }
 
