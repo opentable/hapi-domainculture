@@ -15,8 +15,6 @@ const WHITE_LIST = {
   },
   commx: {
     cultures: ['es-MX', 'en-US'],
-    // 'en-US': { domain: 'commx', culture: 'en-US' }, // User can specify any object for this.
-    // 'es-MX': { domain: 'commx', culture: 'es-MX' }, // User can specify any object for this.
     default: 'es-MX'
   }
 };
