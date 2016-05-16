@@ -16,11 +16,11 @@ We need to be able to support multi domain and languages
   options: {
     white_list: {
       com: {
-        cultures: ['en-US', 'fr-CA'], // the first entry should be the default
+        cultures: ['en-US', 'fr-CA'],
         default: 'en-US'
       },
       commx: {
-        cultures: ['es-MX', 'en-US'], // the first entry should be the default
+        cultures: ['es-MX', 'en-US'],
         default: 'es-MX'
        }
     }, // white_list is required

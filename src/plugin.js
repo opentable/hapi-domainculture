@@ -8,8 +8,12 @@ exports.register = function register(plugin, options, next) {
   if (!options.white_list) { return next(new Error('options.white_list param missing')); }
   if (!options.default) { return next(new Error('options.default param missing')); }
 
-  const DEFAULT_DOMAIN_SETTINGS = options.white_list[options.default];
+  _.forEach(options.white_list, value => {
+    _.pullAll(value.cultures, [value.default]); // mutate array, removing default
+    value.cultures.unshift(value.default); // add default to front of array
+  });
 
+  const DEFAULT_DOMAIN_SETTINGS = _.get(options, ['white_list', options.default]);
   if (!DEFAULT_DOMAIN_SETTINGS) { return next(new Error('The default for the white list is invalid')); }
 
   const DEFAULT_CULTURE = DEFAULT_DOMAIN_SETTINGS.default;

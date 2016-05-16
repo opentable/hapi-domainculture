@@ -10,7 +10,7 @@ const pkg = require('../package.json');
 
 const WHITE_LIST = {
   com: {
-    cultures: ['en-US', 'fr-CA'],
+    cultures: ['en-AU', 'en-GB', 'en-IE', 'en-US', 'es-MX', 'fr-CA'],
     default: 'en-US'
   },
   commx: {
