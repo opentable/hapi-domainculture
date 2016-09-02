@@ -37,11 +37,6 @@ const BASE_REQUEST = {
 };
 
 describe('Plugin Domain Culture', function() {
-  /*
-   *
-   * options are undefined
-   *
-   */
   describe('with undefined options', function() {
     let pluginOptions = {};
     let req = _.defaultsDeep({headers: {'accept-language': 'en-US'}}, BASE_REQUEST);
@@ -75,11 +70,7 @@ describe('Plugin Domain Culture', function() {
     });
   });
 
-  /*
-   *
-   * options are defined (without default header name or query params)
-   *
-   */
+  // options are defined (without default header name or query params)
   describe('headers set, query params are not', function() {
     let pluginOptions = {
       white_list: WHITE_LIST,
@@ -90,7 +81,7 @@ describe('Plugin Domain Culture', function() {
       raw: {
         req: {
           headers: {
-            'accept-language': 'en-US',
+            'accept-language': 'en-US, en, fr, *',
             'domain': 'com'
           }
         }
@@ -109,20 +100,31 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture', function() {
+    it('sets request.pre.domainCulture', function() {
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');
+    });
+
+    it('sets the domain from the headers', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'com');
+    });
+
+    it('sets the culture from the headers', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'en');
+    });
+
+    it('sets the acceptLanguage field from the headers', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'en-US, en, fr, *');
     });
   });
 
-
   /*
-   *
    * options are defined (without default header name or query params)
-   *
    */
   describe('headers set, where accept-language contains a list of languages', function() {
     let pluginOptions = {
@@ -153,21 +155,32 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture', function() {
+    it('sets request.pre.domainCulture', function() {
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');
+    });
+
+    it('sets the domain from the headers', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'com');
+    });
+
+    it('sets the culture from the headers', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'fr-CA');
+    });
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'fr');
+    });
+
+    it('sets the acceptLanguage field from the headers', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'da, fr-CA;q=0.8, en;q=0.7');
     });
   });
 
-
   /*
-   *
    * When only domain is passed in query_params,
    * Should use domain from query_params and with the default culture
-   *
    */
   describe('query params with domain set', function() {
     let pluginOptions = {
@@ -198,15 +211,26 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture according to query params', function() {
+    it('sets request.pre.domainCulture', function() {
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');
+    });
+
+    it('sets the domain from the query', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'commx');
+    });
+
+    it('sets the culture from the default values for that domain', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'es-MX');
     });
-    it('Shoud NOT use the header', function() {
-      expect(req.app.domainCulture).to.not.have.property('domain', 'com');
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'es');
+    });
+
+    it('sets the acceptLanguage field from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'es-MX, es, *');
     });
   });
 
@@ -248,15 +272,26 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture according to query params', function() {
+    it('sets request.pre.domainCulture', function() {
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');
+    });
+
+    it('sets the domain from the query', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'commx');
+    });
+
+    it('sets the culture from the query', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'en-US');
     });
-    it('Shoud NOT use the header', function() {
-      expect(req.app.domainCulture).to.not.have.property('domain', 'com');
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'en');
+    });
+
+    it('sets the acceptLanguage field from the header', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'en-US');
     });
   });
 
@@ -299,15 +334,26 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture according to query params', function() {
+    it('sets request.pre.domainCulture', function() {
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');
+    });
+
+    it('sets the domain from the headers', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'com');
+    });
+
+    it('sets the culture from the headers', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'fr-CA');
     });
-    it('Shoud NOT use the query params', function() {
-      expect(req.app.domainCulture).to.not.have.property('domain', 'commx');
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'fr');
+    });
+
+    it('sets the acceptLanguage field from the header', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'fr-CA');
     });
   });
 
@@ -345,12 +391,20 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture to default', function() {
-      expect(req).to.be.object;
-      expect(req.app).to.not.be.null;
-      expect(req.app.domainCulture).to.be.an('object');
+    it('sets the domain from the defaults', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'com');
+    });
+
+    it('sets the culture from the defaults', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'en');
+    });
+
+    it('sets the acceptLanguage field from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'en-US, en, *');
     });
   });
 
@@ -385,12 +439,20 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture commx/es-MX', function() {
-      expect(req).to.be.object;
-      expect(req.app).to.not.be.null;
-      expect(req.app.domainCulture).to.be.an('object');
+    it('sets the domain from the query', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'commx');
+    });
+
+    it('sets the culture from the defaults for that domain', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'es-MX');
+    });
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'es');
+    });
+
+    it('sets the acceptLanguage field from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'es-MX, es, *');
     });
   });
 
@@ -425,12 +487,26 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture com', function() {
+    it('sets request.pre.domainCulture', function() {
       expect(req).to.be.object;
       expect(req.app).to.not.be.null;
       expect(req.app.domainCulture).to.be.an('object');
+    });
+
+    it('sets the domain from the defaults', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'com');
+    });
+
+    it('sets the culture from the query', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'en');
+    });
+
+    it('sets the acceptLanguage field from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'en-US, en, *');
     });
   });
 
@@ -465,12 +541,20 @@ describe('Plugin Domain Culture', function() {
       }, pluginOptions, function() {});
     });
 
-    it('should set request.pre.domainCulture commx', function() {
-      expect(req).to.be.object;
-      expect(req.app).to.not.be.null;
-      expect(req.app.domainCulture).to.be.an('object');
+    it('sets the domain from the query', () => {
       expect(req.app.domainCulture).to.have.property('domain', 'commx');
+    });
+
+    it('sets the culture from the query', () => {
       expect(req.app.domainCulture).to.have.property('culture', 'en-US');
+    });
+
+    it('sets the langauge from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('language', 'en');
+    });
+
+    it('sets the acceptLanguage field from the culture', () => {
+      expect(req.app.domainCulture).to.have.property('acceptLanguage', 'en-US, en, *');
     });
   });
 });

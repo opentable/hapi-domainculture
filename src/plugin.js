@@ -59,6 +59,11 @@ exports.register = function register(plugin, options, next) {
       domainCulture = {domain: options.default, culture: DEFAULT_CULTURE};
     }
 
+    domainCulture.language = domainCulture.culture.slice(0, 2);
+    domainCulture.acceptLanguage = cultureFromHeader ?
+      cultureFromHeader :
+      `${domainCulture.culture}, ${domainCulture.language}, *`;
+
     _.set(request, 'app.domainCulture', domainCulture);
     reply.continue();
   });
