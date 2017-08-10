@@ -2,14 +2,14 @@
 Status](https://travis-ci.org/opentable/hapi-domainculture.svg)](https://travis-ci.org/opentable/hapi-domainculture)
 
 # hapi-domainculture
------------------
 
-##Domain Culture for Hapi.js
+## Domain Culture for Hapi.js
 
-###WHY?
+### WHY?
 We need to be able to support multi domain and languages
 
-###How?
+### How?
+
 ```javascript
 {
   register: require('hapi-domainculture'),
@@ -40,4 +40,4 @@ We need to be able to support multi domain and languages
 ```
 
 
-Checkout the test for more examples
+Checkout the test directory for more examples
